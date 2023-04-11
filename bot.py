@@ -147,8 +147,10 @@ def convert(call):
         data = Converter.get_price(selected_currency.get("to"),
                                    selected_currency.get("from"),
                                    int(selected_currency.get("amount")))
-
+        # курс валюты
         rate = data.get('info').get('rate')
+
+        # сумма в конечной валюте
         total = data.get('result')
         text = f'{selected_currency.get("amount")} ' \
                f'{selected_currency.get("from")}' \
@@ -162,7 +164,13 @@ def convert(call):
     except UserEnter:
         text = 'Ошибка формирования запроса, количество валюты вводится ' \
                'только цифрами!!! '
-        bot.send_message(chat_id=call.message.chat.id, text=f'{text}')
+
+        keyboard = InlineKeyboardMarkup()
+        btn1 = InlineKeyboardButton('сначала', callback_data='begin')
+        keyboard.add(btn1)
+
+        bot.send_message(chat_id=call.message.chat.id, text=f'{text}',
+                         reply_markup=keyboard)
 
 
 bot.polling()
