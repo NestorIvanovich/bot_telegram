@@ -10,6 +10,7 @@ selected_currency = {}
 @bot.message_handler(commands=['start', ])
 def start(message: telebot.types.Message):
     text = 'Привет! Я бот для конвертации валют.'
+
     keyboard = InlineKeyboardMarkup(row_width=3)
     btn1 = InlineKeyboardButton('начать', callback_data='begin')
     btn2 = InlineKeyboardButton('помощь', callback_data='help')
@@ -17,6 +18,7 @@ def start(message: telebot.types.Message):
     keyboard.add(btn1)
     keyboard.add(btn2)
     keyboard.add(btn3)
+
     bot.send_message(message.chat.id, text, reply_markup=keyboard)
 
 
@@ -26,12 +28,13 @@ def help_command(message: telebot.types.Message):
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'help')
-def help_command(call):
+def help_callback(call):
     bot_help(call.message)
 
 
 def bot_help(message):
-    text = '''Конвертер валют - это бот, который позволяет получить актуальный курс валюты и произвести конвертацию.
+    text = '''Конвертер валют - это бот, который позволяет получить актуальный 
+курс валюты и произвести конвертацию. 
 
 Шаг 1: Для начала работы с ботом, нажмите кнопку "начать".
 
@@ -41,15 +44,20 @@ def bot_help(message):
 
 Шаг 4: Введите сумму начальной валюты с помощью клавиатуры.
 
-Шаг 5: Проверьте, все ли верно, и нажмите кнопку "конвертировать", чтобы получить результат.
+Шаг 5: Проверьте, все ли верно, и нажмите кнопку "конвертировать", 
+чтобы получить результат. 
 
 Шаг 6: Если хотите поменять значения, нажмите кнопку "заново".
 
-Шаг 7: Посмотрите результат конвертации. Если хотите повторить, нажмите кнопку "ещё раз".'''
+Шаг 7: Посмотрите результат конвертации. Если хотите повторить,
+нажмите кнопку "ещё раз". '''
+
     keyboard = InlineKeyboardMarkup()
     btn1 = InlineKeyboardButton('начать', callback_data='begin')
     keyboard.add(btn1)
+
     bot.send_message(message.chat.id, text, reply_markup=keyboard)
+
 
 @bot.message_handler(commands=['values'])
 def values_command(message: telebot.types.Message):
@@ -81,21 +89,25 @@ def begin_callback(call):
 def begin(message):
     keyboard = InlineKeyboardMarkup()
     for i in currency_dict.keys():
+        # уникальный callback для начальной валюты
         btn = telebot.types.InlineKeyboardButton(i, callback_data=f'{i} start')
         keyboard.add(btn)
+
     bot.send_message(chat_id=message.chat.id, text='Выберите начальную валюту:'
                      , reply_markup=keyboard)
 
 
 @bot.callback_query_handler(func=lambda call: call.data[-5:] == 'start')
 def get_start_currency(call):
-    print(call.data, 1)
     selected_currency["from"] = call.data[:-6]
     keyboard = InlineKeyboardMarkup()
     for i in currency_dict.keys():
+        # убираем начальную валюту
         if i != selected_currency['from']:
+            # уникальный callback для конечной валюты
             btn = telebot.types.InlineKeyboardButton(i,
-                                                     callback_data=f'{i} finish')
+                                                     callback_data=f'{i} '
+                                                                   f'finish')
             keyboard.add(btn)
     bot.send_message(chat_id=call.message.chat.id,
                      text='Выберите конечную валюту:'
@@ -124,7 +136,6 @@ def get_amount(message):
                                              callback_data='begin')
     keyboard.add(btn)
     bot.send_message(chat_id=message.chat.id, text=text, reply_markup=keyboard)
-    print(selected_currency)
 
 
 @bot.callback_query_handler(func=lambda call: call.data == 'convert')
@@ -152,7 +163,6 @@ def convert(call):
         text = 'Ошибка формирования запроса, количество валюты вводится ' \
                'только цифрами!!! '
         bot.send_message(chat_id=call.message.chat.id, text=f'{text}')
-
 
 
 bot.polling()
