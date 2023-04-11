@@ -11,13 +11,11 @@ selected_currency = {}
 def start(message: telebot.types.Message):
     text = 'Привет! Я бот для конвертации валют.'
 
-    keyboard = InlineKeyboardMarkup(row_width=3)
+    keyboard = InlineKeyboardMarkup(row_width=2)
     btn1 = InlineKeyboardButton('начать', callback_data='begin')
     btn2 = InlineKeyboardButton('помощь', callback_data='help')
     btn3 = InlineKeyboardButton('доступные валюты', callback_data='values')
-    keyboard.add(btn1)
-    keyboard.add(btn2)
-    keyboard.add(btn3)
+    keyboard.add(btn1, btn2, btn3)
 
     bot.send_message(message.chat.id, text, reply_markup=keyboard)
 
@@ -87,11 +85,13 @@ def begin_callback(call):
 
 
 def begin(message):
-    keyboard = InlineKeyboardMarkup()
+    keyboard = InlineKeyboardMarkup(row_width=3)
+    buttons_list = []
     for i in currency_dict.keys():
         # уникальный callback для начальной валюты
         btn = telebot.types.InlineKeyboardButton(i, callback_data=f'{i} start')
-        keyboard.add(btn)
+        buttons_list.append(btn)
+    keyboard.add(*buttons_list)
 
     bot.send_message(chat_id=message.chat.id,
                      text='Выберите начальную валюту:', reply_markup=keyboard)
@@ -101,6 +101,7 @@ def begin(message):
 def get_start_currency(call):
     selected_currency["from"] = call.data[:-6]
     keyboard = InlineKeyboardMarkup()
+    buttons_list = []
     for i in currency_dict.keys():
         # убираем начальную валюту
         if i != selected_currency['from']:
@@ -108,7 +109,8 @@ def get_start_currency(call):
             btn = telebot.types.InlineKeyboardButton(i,
                                                      callback_data=f'{i} '
                                                                    f'finish')
-            keyboard.add(btn)
+            buttons_list.append(btn)
+    keyboard.add(*buttons_list)
     bot.send_message(chat_id=call.message.chat.id,
                      text='Выберите конечную валюту:',
                      reply_markup=keyboard)
@@ -131,10 +133,9 @@ def get_amount(message):
     keyboard = InlineKeyboardMarkup()
     btn = telebot.types.InlineKeyboardButton("конвертировать",
                                              callback_data='convert')
-    keyboard.add(btn)
-    btn = telebot.types.InlineKeyboardButton("заново",
-                                             callback_data='begin')
-    keyboard.add(btn)
+    btn1 = telebot.types.InlineKeyboardButton("заново",
+                                              callback_data='begin')
+    keyboard.add(btn, btn1)
     bot.send_message(chat_id=message.chat.id, text=text, reply_markup=keyboard)
 
 
@@ -158,7 +159,9 @@ def convert(call):
         keyboard = InlineKeyboardMarkup()
         btn = telebot.types.InlineKeyboardButton("ещё раз",
                                                  callback_data='begin')
-        keyboard.add(btn)
+        btn2 = InlineKeyboardButton('помощь', callback_data='help')
+        keyboard.add(btn, btn2)
+
         bot.send_message(chat_id=call.message.chat.id, text=text,
                          reply_markup=keyboard)
     except UserEnter:
@@ -167,7 +170,8 @@ def convert(call):
 
         keyboard = InlineKeyboardMarkup()
         btn1 = InlineKeyboardButton('сначала', callback_data='begin')
-        keyboard.add(btn1)
+        btn2 = InlineKeyboardButton('помощь', callback_data='help')
+        keyboard.add(btn1, btn2)
 
         bot.send_message(chat_id=call.message.chat.id, text=f'{text}',
                          reply_markup=keyboard)
