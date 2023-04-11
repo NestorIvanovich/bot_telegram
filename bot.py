@@ -93,8 +93,8 @@ def begin(message):
         btn = telebot.types.InlineKeyboardButton(i, callback_data=f'{i} start')
         keyboard.add(btn)
 
-    bot.send_message(chat_id=message.chat.id, text='Выберите начальную валюту:'
-                     , reply_markup=keyboard)
+    bot.send_message(chat_id=message.chat.id,
+                     text='Выберите начальную валюту:', reply_markup=keyboard)
 
 
 @bot.callback_query_handler(func=lambda call: call.data[-5:] == 'start')
@@ -110,8 +110,8 @@ def get_start_currency(call):
                                                                    f'finish')
             keyboard.add(btn)
     bot.send_message(chat_id=call.message.chat.id,
-                     text='Выберите конечную валюту:'
-                     , reply_markup=keyboard)
+                     text='Выберите конечную валюту:',
+                     reply_markup=keyboard)
 
 
 @bot.callback_query_handler(func=lambda call: call.data[-6:] == 'finish')
