@@ -85,6 +85,13 @@ def begin_callback(call):
 
 
 def begin(message):
+    """
+        Отправляет пользователю сообщение с клавиатурой, позволяющей выбрать
+        начальную валюту для конвертации.
+        Параметры: - message: объект Message, содержащий информацию о сообщении
+        пользователя
+        Возвращаемое значение: отсутствует
+        """
     keyboard = InlineKeyboardMarkup(row_width=3)
     buttons_list = []
     for i in currency_dict.keys():
@@ -99,6 +106,12 @@ def begin(message):
 
 @bot.callback_query_handler(func=lambda call: call.data[-5:] == 'start')
 def get_start_currency(call):
+    """
+        Обрабатывает выбор начальной валюты и формирует inline-клавиатуру для
+        выбора конечной валюты.
+        Args: call: объект callback-запроса Telegram API
+        Returns: None
+        """
     selected_currency["from"] = call.data[:-6]
     keyboard = InlineKeyboardMarkup()
     buttons_list = []
@@ -118,6 +131,11 @@ def get_start_currency(call):
 
 @bot.callback_query_handler(func=lambda call: call.data[-6:] == 'finish')
 def get_end_currency(call):
+    """
+        Обрабатывает нажатие кнопки выбора конечной валюты и переходит к вводу
+        количества переводимой валюты.
+        :param call: Объект callback-запроса.
+        """
     selected_currency["to"] = call.data[:-7]
     msg = bot.send_message(chat_id=call.message.chat.id,
                            text='Введите количество:')
@@ -125,6 +143,19 @@ def get_end_currency(call):
 
 
 def get_amount(message):
+    """
+        Обрабатывает количество начальной валюты, сохраняет его в
+        словарь `selected_currency`.
+        Отправляет пользователю сообщение с информацией о выбранных валютах и
+        количестве начальной валюты.
+        Предлагает пользователю выбрать действие:
+        конвертировать или начать заново.
+        Args:
+            message: объект сообщения, содержащий количество начальной валюты,
+             отправленный пользователем
+        Returns:
+            None
+        """
     selected_currency["amount"] = message.text
     text = f'начальная валюта: {selected_currency.get("from")} ' \
            f'\nконечная валюта: {selected_currency.get("to")} ' \
@@ -141,6 +172,12 @@ def get_amount(message):
 
 @bot.callback_query_handler(func=lambda call: call.data == 'convert')
 def convert(call):
+    """
+        Функция для конвертации валюты и вывода результата.
+
+        :param call: Объект типа telebot.types.CallbackQuery с информацией о
+        запросе пользователя. :return: None
+    """
     try:
         if not selected_currency.get("amount").isdigit():
             raise UserEnter()
